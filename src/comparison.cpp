@@ -22,6 +22,7 @@
 #include "retrievalbased/BdzContender.h"
 #include "retrievalbased/BmzContender.h"
 #include "retrievalbased/ChmContender.h"
+#include "retrievalbased/GlGhContender.h"
 #include "bucketplacement/FchCmphContender.h"
 #include "shockhash/MorphisHashContender.h"
 #include "shockhash/MorphisHashFlatContender.h"
@@ -68,6 +69,7 @@ int main(int argc, char** argv) {
     bool consensus = false;
     bool morphisHash = false;
     bool morphisHashFlat = false;
+    bool glgh = false;
     bool minimalOnly = false;
 
     tlx::CmdlineParser cmd;
@@ -109,6 +111,7 @@ int main(int argc, char** argv) {
     cmd.add_flag("gpuPhobic", gpuPhobic, "Execute Phobic on the GPU benchmark");
     cmd.add_flag("fiPS", fiPS, "Execute FiPS benchmark");
     cmd.add_flag("consensus", consensus, "Execute Consensus benchmark");
+    cmd.add_flag("glgh", glgh, "Execute GlGh benchmark");
 
     if (!cmd.process(argc, argv)) {
         return 1;
@@ -208,6 +211,9 @@ int main(int argc, char** argv) {
     }
     if (consensus) {
         consensusContenderRunner(N);
+    }
+    if (glgh) {
+        glghContenderRunner(N, loadFactor);
     }
     return 0;
 }
