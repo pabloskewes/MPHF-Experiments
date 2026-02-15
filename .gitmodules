@@ -58,3 +58,6 @@
 	path = extlib/morphishash
 	url = https://github.com/stefanfred/MorphisHash.git
 	branch = main
+[submodule "extlib/cltj"]
+	path = extlib/cltj
+	url = https://github.com/pabloskewes/cltj.git
