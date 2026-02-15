@@ -97,6 +97,14 @@ target_link_libraries(PerfectHashingCompetitors INTERFACE PTHASH)
 add_subdirectory(extlib/consensus)
 target_link_libraries(PerfectHashingCompetitors INTERFACE ConsensusRecSplit)
 
+# GlGh/cltj
+target_include_directories(PerfectHashingCompetitors SYSTEM INTERFACE extlib/cltj/include)
+if(DEFINED ENV{HOME})
+    target_include_directories(PerfectHashingCompetitors SYSTEM INTERFACE $ENV{HOME}/include)
+    target_link_directories(PerfectHashingCompetitors INTERFACE $ENV{HOME}/lib)
+endif()
+target_link_libraries(PerfectHashingCompetitors INTERFACE sdsl)
+
 #################### CUDA Competitor setup ####################
 if (CMAKE_CUDA_COMPILER)
     enable_language(CUDA)
