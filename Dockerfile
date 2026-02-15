@@ -19,6 +19,11 @@ WORKDIR /opt/sqlplot-tools/build
 RUN cmake -DCMAKE_BUILD_TYPE=Release -DWITH_POSTGRESQL=OFF -DWITH_MYSQL=OFF ..
 RUN cmake --build . -j 8
 
+# Build SDSL (required for GlGh)
+RUN git clone --recursive https://github.com/adriangbrandon/sdsl-lite.git /opt/sdsl-lite
+WORKDIR /opt/sdsl-lite
+RUN ./install.sh /root
+
 # Build Experiments
 COPY . /opt/mphf_experiments
 RUN mkdir /opt/mphf_experiments/build
