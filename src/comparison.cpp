@@ -112,8 +112,21 @@ int main(int argc, char** argv) {
     cmd.add_flag("fiPS", fiPS, "Execute FiPS benchmark");
     cmd.add_flag("consensus", consensus, "Execute Consensus benchmark");
     cmd.add_flag("glgh", glgh, "Execute GlGh benchmark");
+    cmd.add_string("integerKeys", Contender::integerKeys,
+                   "Generate 4-byte uint32 keys without zero bytes: dense|random");
 
     if (!cmd.process(argc, argv)) {
+        return 1;
+    }
+    if (!Contender::integerKeys.empty()
+            && Contender::integerKeys != "dense"
+            && Contender::integerKeys != "random") {
+        std::cerr << "--integerKeys must be dense or random" << std::endl;
+        return 1;
+    }
+    if (!Contender::integerKeys.empty() && N > Contender::ZERO_FREE_UNIVERSE) {
+        std::cerr << "--integerKeys supports at most 255^4 = "
+                  << Contender::ZERO_FREE_UNIVERSE << " keys" << std::endl;
         return 1;
     }
     if (rustFmphContender) {
