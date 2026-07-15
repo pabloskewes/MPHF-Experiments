@@ -137,6 +137,12 @@ if (CMAKE_CUDA_COMPILER)
     target_link_libraries(PerfectHashingCompetitorsCuda INTERFACE Contender)
 endif()
 
+################### Tests ###################
+add_executable(harness_integer_keys tests/harness_integer_keys.cpp)
+target_link_libraries(harness_integer_keys PRIVATE Contender sdsl)
+target_include_directories(harness_integer_keys PRIVATE extlib/cltj/include)
+target_compile_features(harness_integer_keys PRIVATE cxx_std_20)
+
 ################### Benchmark build targets ###################
 add_executable(Comparison src/comparison.cpp)
 target_link_libraries(Comparison PRIVATE PerfectHashingCompetitors PerfectHashingCompetitorParetoRunners Sux)
