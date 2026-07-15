@@ -7,3 +7,4 @@ rust/target
 .spack-env
 spack.lock
 .cache/
+.DS_Store
