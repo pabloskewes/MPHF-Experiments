@@ -1,5 +1,6 @@
 #include "Contender.h"
 
+#include <algorithm>
 #include <vector>
 #include <iostream>
 #include <chrono>
@@ -9,7 +10,66 @@
 #include <span>
 #include "PerformanceCounter.h"
 
-std::vector<std::string> generateInputData(size_t N, uint64_t seed) {
+/// @brief  Bijection [0, 255^4) -> uint32 whose 4 bytes are all in [1,255].
+///
+/// Writes the value in base 255, then maps each digit d (0–254) to the byte
+/// d+1 (1–255), so no byte is 0x00.  Needed because cmph and the Rust FFI read
+/// keys with strlen() during construction: a zero byte would truncate the key.
+static uint32_t zeroFreeKey(uint64_t value) {
+    uint32_t result = 0;
+    for (int bytePos = 0; bytePos < 4; bytePos++) {
+        int digit = static_cast<int>(value % 255);  // least significant digit in base 255
+        value /= 255;                               // shift right by one base-255 digit
+        int byte = digit + 1;                       // map [0,254] → [1,255], never zero
+        result  |= static_cast<uint32_t>(byte) << (8 * bytePos);
+    }
+    return result;
+}
+
+/// @brief  Generate N distinct zero‑free uint32 keys, then shuffle them.
+/// @param dense  If true: consecutive keys (0,1,…); otherwise random from [0, 255^4).
+static std::vector<uint32_t> generateIntegerKeys(
+    size_t N, bool dense, bytehamster::util::XorShift64 &prng
+) {
+    std::vector<uint32_t> keys;
+    keys.reserve(N);
+    if (dense) {
+        for (size_t i = 0; i < N; i++) {
+            keys.push_back(zeroFreeKey(i));
+        }
+    } else {
+        while (keys.size() < N) {
+            while (keys.size() < N) {
+                keys.push_back(zeroFreeKey(prng(Contender::ZERO_FREE_UNIVERSE)));
+            }
+            std::sort(keys.begin(), keys.end());
+            keys.erase(std::unique(keys.begin(), keys.end()), keys.end());
+        }
+    }
+    // Shuffle keys (Fisher-Yates)
+    for (size_t i = keys.size(); i > 1; i--) {
+        std::swap(keys[i - 1], keys[prng(i)]);
+    }
+    return keys;
+}
+
+std::vector<std::string> generateInputData(
+    size_t N, uint64_t seed, const std::string &integerKeys
+) {
+    if (!integerKeys.empty()) {
+        bytehamster::util::XorShift64 prng(seed);
+        std::cout << "Generating input" << std::flush;
+        std::vector<uint32_t> intKeys = generateIntegerKeys(N, integerKeys == "dense", prng);
+        std::vector<std::string> inputData;
+        inputData.reserve(N);
+        for (uint32_t k : intKeys) {
+            // Native-endian, only consumed in-process.
+            inputData.emplace_back(reinterpret_cast<const char*>(&k), sizeof(k));
+        }
+        std::cout << "\rInput generation complete." << std::endl;
+        return inputData;
+    }
+
     std::vector<std::string> inputData;
     inputData.reserve(N);
     bytehamster::util::XorShift64 prng(seed);
@@ -49,7 +109,7 @@ void Contender::run(bool shouldPrintResult) {
         prng(); // Ensure that first few generated seeds don't have too many zeroes when users pick small seeds
     }
     std::cout << "Seed: " << seed << std::endl;
-    std::vector<std::string> keys = generateInputData(N, prng());
+    std::vector<std::string> keys = generateInputData(N, prng(), integerKeys);
     beforeConstruction(keys);
 
     std::cout << "Cooldown" << std::endl;
@@ -134,6 +194,7 @@ void Contender::printResult(const std::string &additional) {
               << " numQueriesTotal=" << totalQueries
               << " cacheMissesPerQuery=" << (totalQueries > 0 ? (1.0f * queryCacheMisses / totalQueries) : 0)
               << " N=" << N
+              << " integerKeys=" << (integerKeys.empty() ? std::string("off") : integerKeys)
               << " loadFactor=" << loadFactor
               << " threads=" << numThreads
               << " queryThreads=" << numQueryThreads
@@ -146,3 +207,4 @@ size_t Contender::numThreads = 1;
 size_t Contender::numQueryThreads = 1;
 size_t Contender::seed = 0;
 bool Contender::skipTests = false;
+std::string Contender::integerKeys = "";

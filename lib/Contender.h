@@ -17,6 +17,8 @@ class Contender {
         static size_t numQueryThreads;
         static size_t seed;
         static bool skipTests;
+        static std::string integerKeys;
+        static constexpr uint64_t ZERO_FREE_UNIVERSE = 255ull * 255 * 255 * 255;
 
         const size_t N;
         const double loadFactor;

@@ -8,3 +8,4 @@ rust/target
 spack.lock
 .cache/
 .DS_Store
+.vscode
