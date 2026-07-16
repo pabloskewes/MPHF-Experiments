@@ -138,9 +138,14 @@ if (CMAKE_CUDA_COMPILER)
 endif()
 
 ################### Tests ###################
-add_executable(harness_integer_keys tests/harness_integer_keys.cpp)
-target_link_libraries(harness_integer_keys PRIVATE Contender sdsl)
+add_executable(harness_integer_keys EXCLUDE_FROM_ALL tests/harness_integer_keys.cpp)
+# ByteHamsterUtil is explicit: Contender links it PRIVATE but exposes it in Contender.h.
+target_link_libraries(harness_integer_keys PRIVATE Contender ByteHamsterUtil sdsl)
 target_include_directories(harness_integer_keys PRIVATE extlib/cltj/include)
+if(DEFINED ENV{HOME})
+    target_include_directories(harness_integer_keys SYSTEM PRIVATE $ENV{HOME}/include)
+    target_link_directories(harness_integer_keys PRIVATE $ENV{HOME}/lib)
+endif()
 target_compile_features(harness_integer_keys PRIVATE cxx_std_20)
 
 ################### Benchmark build targets ###################
