@@ -98,11 +98,12 @@ add_subdirectory(extlib/consensus)
 target_link_libraries(PerfectHashingCompetitors INTERFACE ConsensusRecSplit)
 
 # GlGh/cltj
+# sdsl must be built with -DCMAKE_POSITION_INDEPENDENT_CODE=ON: contenders are SHARED libraries,
+# and a non-PIC libsdsl.a cannot be linked into a .so.
+set(SDSL_ROOT "$ENV{HOME}" CACHE PATH "Prefix where sdsl-lite is installed")
 target_include_directories(PerfectHashingCompetitors SYSTEM INTERFACE extlib/cltj/include)
-if(DEFINED ENV{HOME})
-    target_include_directories(PerfectHashingCompetitors SYSTEM INTERFACE $ENV{HOME}/include)
-    target_link_directories(PerfectHashingCompetitors INTERFACE $ENV{HOME}/lib)
-endif()
+target_include_directories(PerfectHashingCompetitors SYSTEM INTERFACE ${SDSL_ROOT}/include)
+target_link_directories(PerfectHashingCompetitors INTERFACE ${SDSL_ROOT}/lib)
 target_link_libraries(PerfectHashingCompetitors INTERFACE sdsl)
 
 #################### CUDA Competitor setup ####################
@@ -142,10 +143,8 @@ add_executable(harness_integer_keys EXCLUDE_FROM_ALL tests/harness_integer_keys.
 # ByteHamsterUtil is explicit: Contender links it PRIVATE but exposes it in Contender.h.
 target_link_libraries(harness_integer_keys PRIVATE Contender ByteHamsterUtil sdsl)
 target_include_directories(harness_integer_keys PRIVATE extlib/cltj/include)
-if(DEFINED ENV{HOME})
-    target_include_directories(harness_integer_keys SYSTEM PRIVATE $ENV{HOME}/include)
-    target_link_directories(harness_integer_keys PRIVATE $ENV{HOME}/lib)
-endif()
+target_include_directories(harness_integer_keys SYSTEM PRIVATE ${SDSL_ROOT}/include)
+target_link_directories(harness_integer_keys PRIVATE ${SDSL_ROOT}/lib)
 target_compile_features(harness_integer_keys PRIVATE cxx_std_20)
 
 ################### Benchmark build targets ###################
