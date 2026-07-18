@@ -1,7 +1,6 @@
 #include "RustFmphGoContender.h"
 
 void rustFmphGoContenderRunner(size_t N) {
-    for (double gamma = 1.0; gamma <= 5.0; gamma += 0.15) {
-        { RustFmphGoContender(N, gamma).run(); }
-    }
+    RustFmphGoContender(N, 5.0).run();
+    RustFmphGoContender(N, 1.5).run();
 }
