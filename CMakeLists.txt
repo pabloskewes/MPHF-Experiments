@@ -102,6 +102,7 @@ target_link_libraries(PerfectHashingCompetitors INTERFACE ConsensusRecSplit)
 # and a non-PIC libsdsl.a cannot be linked into a .so.
 set(SDSL_ROOT "$ENV{HOME}" CACHE PATH "Prefix where sdsl-lite is installed")
 target_include_directories(PerfectHashingCompetitors SYSTEM INTERFACE extlib/cltj/include)
+target_include_directories(PerfectHashingCompetitors SYSTEM INTERFACE extlib/cltj/lib/fastmod/include)
 target_include_directories(PerfectHashingCompetitors SYSTEM INTERFACE ${SDSL_ROOT}/include)
 target_link_directories(PerfectHashingCompetitors INTERFACE ${SDSL_ROOT}/lib)
 target_link_libraries(PerfectHashingCompetitors INTERFACE sdsl)

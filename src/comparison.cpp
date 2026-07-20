@@ -70,6 +70,7 @@ int main(int argc, char** argv) {
     bool morphisHash = false;
     bool morphisHashFlat = false;
     bool glgh = false;
+    bool glghFastmod = false;
     bool minimalOnly = false;
 
     tlx::CmdlineParser cmd;
@@ -112,6 +113,7 @@ int main(int argc, char** argv) {
     cmd.add_flag("fiPS", fiPS, "Execute FiPS benchmark");
     cmd.add_flag("consensus", consensus, "Execute Consensus benchmark");
     cmd.add_flag("glgh", glgh, "Execute GlGh benchmark");
+    cmd.add_flag("glghFastmod", glghFastmod, "Execute GlGh benchmark with fastmod");
     cmd.add_string("integerKeys", Contender::integerKeys,
                    "Generate 4-byte uint32 keys without zero bytes: dense|random");
 
@@ -227,6 +229,9 @@ int main(int argc, char** argv) {
     }
     if (glgh) {
         glghContenderRunner(N, loadFactor);
+    }
+    if (glghFastmod) {
+        glghFastmodContenderRunner(N, loadFactor);
     }
     return 0;
 }
